@@ -13,18 +13,13 @@ Use clear, honest descriptions. It is fine if your system is imperfect.
 ## 1. System Overview
 
 **What is DocuBot trying to do?**  
-Describe the overall goal in 2 to 3 sentences.
-
-> _Your answer here._
+To experience the 3 ways of using LLMs to answer questions about the codebase: Naive, Retrieval only, and RAG.
 
 **What inputs does DocuBot take?**  
-For example: user question, docs in folder, environment variables.
-
-> _Your answer here._
+User question, docs in folder, and environment variables. It can also take in a custom query.
 
 **What outputs does DocuBot produce?**
-
-> _Your answer here._
+It produces answers to the user's query based on the selected mode.
 
 ---
 
@@ -34,15 +29,14 @@ For example: user question, docs in folder, environment variables.
 Describe your choices for indexing and scoring.
 
 - How do you turn documents into an index?
+I used a dictionary to store the index.
 - How do you score relevance for a query?
+I used a scoring system to score the relevance of each document to the query.
 - How do you choose top snippets?
-
-> _Your answer here._
+I chose the top 3 snippets to return.
 
 **What tradeoffs did you make?**  
-For example: speed vs precision, simplicity vs accuracy.
-
-> _Your answer here._
+RAG & LLM are slower but more accurate. Retrieval only is faster but less accurate.
 
 ---
 
@@ -51,16 +45,12 @@ For example: speed vs precision, simplicity vs accuracy.
 **When does DocuBot call the LLM and when does it not?**  
 Briefly describe how each mode behaves.
 
-- Naive LLM mode:
-- Retrieval only mode:
-- RAG mode:
-
-> _Your answer here._
+- Naive LLM mode: Vague & fast 
+- Retrieval only mode: Fast but not specific
+- RAG mode: Slow but specific & perfect
 
 **What instructions do you give the LLM to keep it grounded?**  
-Summarize the rules from your prompt. For example: only use snippets, say "I do not know" when needed, cite files.
-
-> _Your answer here._
+I told the LLM to only use the snippets provided and to say "I do not know" if it did not know the answer based on provided context.
 
 ---
 
@@ -68,80 +58,61 @@ Summarize the rules from your prompt. For example: only use snippets, say "I do 
 
 Run the **same set of queries** in all three modes. Fill in the table with short notes.
 
-You can reuse or adapt the queries from `dataset.py`.
-
 | Query | Naive LLM: helpful or harmful? | Retrieval only: helpful or harmful? | RAG: helpful or harmful? | Notes |
 |------|---------------------------------|--------------------------------------|---------------------------|-------|
-| Example: Where is the auth token generated? | | | | |
-| Example: How do I connect to the database? | | | | |
-| Example: Which endpoint lists all users? | | | | |
-| Example: How does a client refresh an access token? | | | | |
+| Example: Where is the auth token generated? | Harmful | Helpful | Helpful | |
+| Example: How do I connect to the database? | Harmful | Helpful | Helpful | |
+| Example: Which endpoint lists all users? | Harmful | Helpful | Helpful | |
+| Example: How does a client refresh an access token? | Harmful | Helpful | Helpful | |
 
 **What patterns did you notice?**  
 
 - When does naive LLM look impressive but untrustworthy?  
+It answers with the context it has, but it doesn't have the full context of the codebase.
 - When is retrieval only clearly better?  
+When the question is very specific and the answer is in the docs.
 - When is RAG clearly better than both?
-
-> _Your answer here._
+It's a custom answer that is specific to the docs that it has a context of.
 
 ---
 
 ## 5. Failure Cases and Guardrails
 
 **Describe at least two concrete failure cases you observed.**  
-For each one, say:
 
-- What was the question?  
-- What did the system do?  
-- What should have happened instead?
-
-> _Failure case 1 here._
-
-> _Failure case 2 here._
+1. No retrieval in docubot initially because it was missing logic.
+2. `score_document` didn't calculate correctly before implementation.
 
 **When should DocuBot say “I do not know based on the docs I have”?**  
-Give at least two specific situations.
-
-> _Your answer here._
+When the question is not related to the documentation provided.
 
 **What guardrails did you implement?**  
-Examples: refusal rules, thresholds, limits on snippets, safe defaults.
-
-> _Your answer here._
+Specific prompt instructions to prevent hallucination by forcing the model to stick to the provided snippets.
 
 ---
 
 ## 6. Limitations and Future Improvements
 
 **Current limitations**  
-List at least three limitations of your DocuBot system.
-
-1. _Limitation 1_
-2. _Limitation 2_
-3. _Limitation 3_
+1. Keyword matching is basic and might miss synonyms.
+2. Large documents are loaded entirely into memory.
+3. No semantic understanding in the retrieval step.
 
 **Future improvements**  
-List two or three changes that would most improve reliability or usefulness.
-
-1. _Improvement 1_
-2. _Improvement 2_
-3. _Improvement 3_
+1. Implement vector embeddings for better search.
+2. Add support for more file types (PDF, etc).
+3. Improve snippet chunking for localized answers.
 
 ---
 
 ## 7. Responsible Use
 
 **Where could this system cause real world harm if used carelessly?**  
-Think about wrong answers, missing information, or over trusting the LLM.
-
-> _Your answer here._
+If used on critical security or infrastructure code where a hallucinated answer could lead to vulnerabilities.
 
 **What instructions would you give real developers who want to use DocuBot safely?**  
-Write 2 to 4 short bullet points.
-
-- _Guideline 1_
-- _Guideline 2_
-- _Guideline 3 (optional)_
+- Always verify the citations and files mentioned.
+- Do not use for high-stakes deployment without human review.
+- Keep documentation up to date to ensure the bot has the correct context.
 
 ---
